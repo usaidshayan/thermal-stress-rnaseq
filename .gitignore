@@ -1,0 +1,35 @@
+# data, outputs and local stuff stay on nesi
+raw_data/
+results/
+logs/
+tmp/
+ref/
+.snakemake/
+.envs/
+.conda_pkgs/
+.cache/
+.apptainer/
+__pycache__/
+PROGRESS.md
+
+# sample sheets and novogene forms
+config/*.tsv
+config/*.xlsx
+config/phenotypes/*
+!config/*.template.tsv
+!config/phenotypes/*.template.tsv
+
+*.fq.gz
+*.fastq.gz
+*.bam
+*.bai
+*.cram
+*.crai
+*.vcf.gz
+*.bcf
+*.tbi
+*.csi
+*.beagle.gz
+*.html
+*.zip
+*.tar.gz

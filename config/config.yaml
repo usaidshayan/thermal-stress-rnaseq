@@ -1,0 +1,70 @@
+# ch4 thermal stress: l. sericata L4 larvae, 3 h at 22 (CT), 4 (CD) or 38 C (HT), whole-body rna-seq (novogene, 48)
+# LD9 (ee line, cages A B C) vs three high-diversity founder-cross lines (FCHD1-3)
+# U1-U15: HD larvae whose labels got scrambled at extraction, line + temp recovered in the recover stage
+# all paths relative to /nesi/nobackup/uow04177/ch4_therm_stress_rnaseq
+
+units: config/units.tsv              # one row per lane, built by scripts/make_samplesheet.py
+samples: config/samples.tsv          # one row per larva
+sif: config/sif_rna_all.tsv          # all 96 on the rna sif, experiment = thermal / other
+design: config/design.tsv            # larvae per line x temp as set up
+rename: config/sample_rename.tsv     # novogene name -> sif name, only if they changed any
+u_resolved: config/u_resolved.tsv    # U samples after checking the recover output: sample, line, temp, use
+
+# larvae to drop after alignment (failed qc, degraded ...)
+exclude_samples: []
+
+ref:
+  # shared, with hisat2 splice-aware index + refflat, read only
+  dir: /nesi/nobackup/uow04177/genome_assemblies/lucilia_sericata
+  name: Lser_GCF_015586225.1
+  mito: NC_009733.1
+  n_intervals: 24        # scaffold bins for rna snp calling
+
+modules:
+  fastp: fastp/1.1.0-GCC-12.3.0
+  hisat2: HISAT2/2.2.1-gompi-2023a
+  samtools: SAMtools/1.22-GCC-12.3.0
+  subread: Subread/2.0.7-GCC-12.3.0
+  multiqc: MultiQC/1.24.1-foss-2023a-Python-3.11.6
+  picard: picard/3.4.0-Java-21.0.5
+  bcftools: BCFtools/1.22-GCC-12.3.0
+  plink2: PLINK/2.00a6.9
+  r: R-bundle-Bioconductor/3.23-foss-2026-R-4.6.0
+  gffread: gffread/0.12.7-GCC-12.3.0
+  eggnog: eggnog-mapper/2.1.14-foss-2026
+
+fastp:
+  min_len: 36
+  extra: "--trim_poly_g"
+
+count:
+  strand: 0              # pilot: unstranded, ~50% of reads either way with -s 1 / -s 2
+
+qc:
+  min_assigned: 5000000  # read pairs on genes
+  max_rrna: 0.1
+  min_bias: 0.1          # picard median 5'-3' bias, lower = 3' heavy / degraded (pilot: LD9A 0.23 passed qc, LD9B 0.03 failed)
+
+recover:
+  min_mq: 50             # hisat2 unique = 60
+  min_bq: 20
+  max_depth: 1000
+  min_gt_dp: 8
+  min_gq: 20
+  max_missing: 0.2
+  min_maf: 0.05
+  prune: "50kb 0.2"
+  n_top_genes: 500       # temp classifier features, picked inside each cv fold
+  min_llr: 10            # line call: log-lik best vs next line
+  min_prob: 0.8          # temp call: classifier probability
+
+de:
+  fdr: 0.05
+  min_group: 2           # contrasts need >= 2 larvae in every group
+
+coexpr:
+  n_genes: 5000
+  min_module: 30
+
+go:
+  min_cat: 10

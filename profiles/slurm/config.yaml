@@ -1,0 +1,14 @@
+executor: slurm
+jobs: 100
+local-cores: 2
+latency-wait: 120
+rerun-incomplete: true
+keep-going: true
+printshellcmds: true
+software-deployment-method:
+  - env-modules
+default-resources:
+  slurm_account: uow04177
+  runtime: 60
+  mem_mb: 4000
+  tmpdir: /nesi/nobackup/uow04177/ch4_therm_stress_rnaseq/tmp
